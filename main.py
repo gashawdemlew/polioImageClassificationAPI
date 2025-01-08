@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Form
 import uvicorn
 import os
+import tempfile
 # from PIL import Image
 
 from fastapi import File, UploadFile, HTTPException
@@ -17,18 +18,28 @@ ALLOWED_EXTENSIONS = {".jpg", ".jpeg"}
 def is_file_extension_allowed(filename: str) -> bool:
     return filename.lower().endswith(tuple(ALLOWED_EXTENSIONS))
 
+# async def save_uploaded_image(uploaded_image: UploadFile) -> str:
+#     """Saves the image to the specified path and returns the save path."""
+#     try:
+#         contents = await uploaded_image.read()
+#         filename = f"{uploaded_image.filename}"
+#         save_path = os.path.join(os.getcwd(), filename)
+        
+#         with open(save_path, "wb") as f:
+#             f.write(contents) 
+
+#         return save_path
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error saving image: {e}")
+
 async def save_uploaded_image(uploaded_image: UploadFile) -> str:
-    """Saves the image to the specified path and returns the save path."""
+    """Saves the image to a temporary path and returns the save path."""
     try:
         contents = await uploaded_image.read()
-        filename = f"{uploaded_image.filename}"
-        save_path = os.path.join(os.getcwd(), filename)
-        
-        with open(save_path, "wb") as f:
-            f.write(contents) 
-
-        return save_path
-
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+            temp_file.write(contents)
+            return temp_file.name  # Returns the path of the temporary file
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving image: {e}")
 
