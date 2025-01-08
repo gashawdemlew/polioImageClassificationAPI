@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Form
 import uvicorn
 import os
-from PIL import Image
+# from PIL import Image
 
 from fastapi import File, UploadFile, HTTPException
 from gradio_client import Client, file, handle_file
