@@ -107,8 +107,8 @@ async def predict_polio(
         response = requests.post(api_url, json=request_json)
         
         if response.status_code == 200 or response.status_code == 201:
-            output = response.json()
-            print("Output:", output)
+            # output = response.json()
+            # print("Output:", output)
             return {"prediction": polio_suspected, "confidence_interval": confidence, "message": message}
         else:
             print("Error:",response.json())
