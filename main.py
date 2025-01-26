@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Depends
 import uvicorn
 import os
 import tempfile
+import requests
+from pydantic import BaseModel,ValidationError
 # from PIL import Image
 
 from fastapi import File, UploadFile, HTTPException
@@ -14,6 +16,9 @@ app = FastAPI(
 
 # Allowed image extensions
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg"}
+
+class iPayload(BaseModel):
+    epid_number: str
 
 def is_file_extension_allowed(filename: str) -> bool:
     return filename.lower().endswith(tuple(ALLOWED_EXTENSIONS))
@@ -59,7 +64,9 @@ async def start_root():
     return msg
 
 @app.post("/polio_classification")
-async def predict_polio(input_image: UploadFile = File(...)):
+async def predict_polio(
+    inputData: iPayload = Depends(),
+    input_image: UploadFile = File(...)):
     try:
         if not is_file_extension_allowed(input_image.filename):
             return {"response": "Only .jpg images are supported"}
@@ -85,8 +92,27 @@ async def predict_polio(input_image: UploadFile = File(...)):
             polio_suspected = "not-suspected"
             confidence = float(predicted_value[1]) * 100
             message = f"The case is not polio suspected with a confidence of {confidence}"
-                    
-        return {"prediction": polio_suspected, "confidence_interval": confidence, "message": message}
+        
+        # Request the api (nodeJS) to save the predicted result to database
+        api_url = "https://testgithub.polioantenna.org/ModelRoute/data"
+        
+        request_json = {
+            "message": message,
+            "epid_number": inputData.epid_number,
+            "suspected": polio_suspected,
+            "confidence_interval": confidence
+        }
+        
+        # Make a POST request
+        response = requests.post(api_url, json=request_json)
+        
+        if response.status_code == 200 or response.status_code == 201:
+            output = response.json()
+            print("Output:", output)
+            return {"prediction": polio_suspected, "confidence_interval": confidence, "message": message}
+        else:
+            print("Error:",response.json())
+            return { "error": "Internal Server Error"}
 
     except Exception as e:
         return {"error": str(e)}

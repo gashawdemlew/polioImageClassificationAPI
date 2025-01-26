@@ -1,0 +1,57 @@
+dependencies:
+http: ^0.13.4  # Check for the latest version
+image_picker: ^0.8.4  # Optional: For picking images from the gallery or camera
+
+
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'dart:io';
+
+Future<void> uploadImage(String imagePath) async {
+  // URL of the FastAPI endpoint
+  final String url = 'https://polio-image-classification-api.vercel.app/polio_classification';
+
+  // Check if the file exists
+  File imageFile = File(imagePath);
+  if (!await imageFile.exists()) {
+    print("Error: The file '${imagePath}' does not exist.");
+    return;
+  }
+
+  try {
+    // Create a request
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+
+    // Add headers
+    request.headers['accept'] = 'application/json';
+
+    // Attach the image file
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'input_image', 
+        imagePath,
+        contentType: MediaType('image', 'jpeg'), // Set the content type
+      ),
+    );
+
+    // Send the request
+    var response = await request.send();
+
+    // Get the response
+    if (response.statusCode == 200) {
+      // Decode the response
+      var responseData = await http.Response.fromStream(response);
+      print("Output: ${responseData.body}");
+    } else {
+      print("Error: ${response.statusCode} ${response.reasonPhrase}");
+    }
+  } catch (e) {
+    print("An error occurred: $e");
+  }
+}
+
+// Usage example
+void main() {
+  String imagePath = '/path/to/photo_100_2025-01-06_14-10-18.jpg'; // Update with your image path
+  uploadImage(imagePath);
+}
