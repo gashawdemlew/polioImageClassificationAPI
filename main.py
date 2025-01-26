@@ -68,7 +68,6 @@ async def predict_polio(
     inputData: iPayload = Depends(),
     input_image: UploadFile = File(...)):
     try:
-        print(inputData.epid_number)
         if not is_file_extension_allowed(input_image.filename):
             return {"response": "Only .jpg images are supported"}
         
@@ -97,8 +96,6 @@ async def predict_polio(
         # Request the api (nodeJS) to save the predicted result to database
         api_url = "https://testgithub.polioantenna.org/ModelRoute/data"
         
-        print(inputData.epid_number)
-        
         request_json = {
             "message": message,
             "epid_number": inputData.epid_number,
@@ -106,12 +103,17 @@ async def predict_polio(
             "confidence_interval": confidence
         }
         
-        headers = {
-            'accept': 'application/json'
-        }
+        print(request_json)
         
-        # Make a POST request
-        response = requests.post(api_url, headers=headers, json=request_json)
+        headers = {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Connection': 'Keep-Alive',
+            'Keep-Alive': 'timeout=5, max=100',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+            # Make a POST request
+        response = requests.post(api_url, json=request_json, headers=headers)
+        print(response.text)
         
         if response.status_code == 200 or response.status_code == 201:
             # output = response.json()
