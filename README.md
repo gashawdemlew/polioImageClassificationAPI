@@ -72,7 +72,7 @@ python main.py
 ## Deployment
 The deployed model is available on Hugging Face. You can directly test the model online or integrate it into your application.
 
-### Deployed Model Link: Hugging Face Model [Link](https://huggingface.co/spaces/gashudemman/abdomenDiseaseDetector)
+### Deployed Model Link: Hugging Face Model [Link](https://huggingface.co/spaces/gashudemman/polioImageClassification)
 If you prefer to deploy the model yourself, you can use the following platforms:
 
 1. On-Premise Server: Use Docker or other tools to host the model locally.
