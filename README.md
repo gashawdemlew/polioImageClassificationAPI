@@ -91,6 +91,15 @@ If you prefer to deploy the model yourself, you can use the following platforms:
         - Leverages pre-trained models like Vision Transformers (ViT), ResNet, MobileNet, VGG16, and VGG19.
 - Cloud Integration:
         - Model is deployable on cloud platforms for easy accessibility.
+
+---
+
+## Testing
+To test the model:
+
+1. Clone the repository and set it up as described in the "How to Use" section.
+2. Use MRI images from the test-data folder or your own data.
+3. Run the application, and view the output to check the detected disease stage.
     
 ---
 
